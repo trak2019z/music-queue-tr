@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 from .models import Room, ChatMessage
-from player.models import Song
+from player.models import Song, Playlist
 import json
 import pafy
 
@@ -32,17 +32,22 @@ class ChatConsumer(WebsocketConsumer):
         if not Song.objects.filter(url=url).exists():
             audio = pafy.new(url)
             best = audio.getbestaudio(preftype='m4a')
-            Song.objects.create(
+            song = Song.objects.create(
                 title=audio.title,
                 url=data['message'],
                 best_url=best.url,
                 duration=audio.length
             )
+            #room = Room.objects.filter(name=self.room_name)
+            #Room.objects.filter(playlist__song=)
+            room1 = Room.objects.filter(name=self.room_name)
+            playlist = Playlist.objects.filter(id=room1[0]['playlist_id'])
+            playlist.song.add(song)
             content = {
                 'command': 'new_message',
                 'message': {
                     'author': author,
-                    'message': "Dodano do playlisty %s" % audio.title
+                    'message': "Dodano do playlisty %s" % song.title
                 }
             }
             return self.send_chat_message(content)
