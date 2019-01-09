@@ -1,9 +1,10 @@
 from django.contrib.auth import get_user_model
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
-from django.contrib import messages
-import json
 from .models import Room, ChatMessage
+from player.models import Song
+import json
+import pafy
 
 User = get_user_model()
 
@@ -24,8 +25,32 @@ class ChatConsumer(WebsocketConsumer):
         }
         return self.send_chat_message(content)
 
+    def add_playlist_song(self, data):
+        author = data['from']
+        #room1 = Room.objects.filter(name=self.room_name)[0]
+        url = data['message']
+        if not Song.objects.filter(url=url).exists():
+            audio = pafy.new(url)
+            best = audio.getbestaudio(preftype='m4a')
+            Song.objects.create(
+                title=audio.title,
+                url=data['message'],
+                best_url=best.url,
+                duration=audio.length
+            )
+            content = {
+                'command': 'new_message',
+                'message': {
+                    'author': author,
+                    'message': "Dodano do playlisty %s" % audio.title
+                }
+            }
+            return self.send_chat_message(content)
+
+
     commands = {
         #'fetch_messages': fetch_messages,
+        'add_playlist_song': add_playlist_song,
         'new_message': new_message,
     }
 
@@ -37,7 +62,6 @@ class ChatConsumer(WebsocketConsumer):
             self.channel_name
         )
         self.accept()
-
 
     def disconnect(self, close_code):
         async_to_sync(self.channel_layer.group_discard)(
@@ -53,10 +77,7 @@ class ChatConsumer(WebsocketConsumer):
     def message_to_json(self, message):
         return {
             'author': message.author.username,
-            'room': message.room.name,
-            'message': message.message,
-            'created': str(message.created)
-
+            'message': message.message
         }
 
     def send_chat_message(self, message):
@@ -72,6 +93,6 @@ class ChatConsumer(WebsocketConsumer):
         message = event['message']
         self.send(text_data=json.dumps(message))
 
-    def add_song(self, event):
+    def song(self, event):
         message = event['message']
         self.send(text_data=json.dumps(message))

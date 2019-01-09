@@ -14,7 +14,7 @@
     <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
     <link rel="stylesheet" href="{% static 'chat.css' %}"/>
 <body>
-  <div id="frame">
+  <div id="frame" class="col-md-8">
     <div class="content">
       <div class="messages">
           <ul id="chat-log">
@@ -91,7 +91,7 @@
                 console.log(command);
                 console.log(youtube_id);
                 chatSocket.send(JSON.stringify({
-                    'command': 'add_song',
+                    'command': 'add_playlist_song',
                     'message': youtube_id,
                     'from': username
                 }));
