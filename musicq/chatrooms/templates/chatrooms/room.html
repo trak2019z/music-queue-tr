@@ -88,8 +88,6 @@
             message = message.substr(split);
             if (command === '!play') {
                 youtube_id = youtube_parser(message);
-                console.log(command);
-                console.log(youtube_id);
                 chatSocket.send(JSON.stringify({
                     'command': 'add_playlist_song',
                     'message': youtube_id,

@@ -1,12 +1,16 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils import timezone
+from player.models import Playlist
 
 User = get_user_model()
 
 
 class Room(models.Model):
     name = models.CharField(max_length=255)
+    description = models.CharField(max_length=255, null=True)
+    playlist = models.ForeignKey(Playlist, on_delete=models.CASCADE, null=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
