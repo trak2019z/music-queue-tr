@@ -3,7 +3,7 @@ from . import views
 
 
 urlpatterns = [
-    #path('', views.index,  name='chatrooms'),
+    path('list/', views.RoomListView.as_view(template_name='chatrooms/chat.html'),  name='room_list'),
+    path('create/', views.CreateRoomView.as_view(template_name='chatrooms/create_room.html'), name='room_create'),
     re_path(r'^(?P<room_name>[^/]+)/$', views.room, name='room'),
-    path('create_room/', views.CreateRoomView.as_view(template_name='create_room.html'), name='create_room'),
     ]

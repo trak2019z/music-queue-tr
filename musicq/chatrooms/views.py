@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils.safestring import mark_safe
 from django.contrib import messages
-from django.views.generic import View
+from django.views.generic import View, ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 import json
 from .models import Room
@@ -10,12 +10,11 @@ from player.models import Playlist
 from .forms import RoomRegisterForm
 
 
-@login_required
-def index(request):
-    rooms = Room.objects.order_by('title')
-    return render(request, 'chatrooms/chat.html', {
-        'rooms': rooms,
-    })
+class RoomListView(ListView):
+    model = Room
+    template_name = 'chatrooms/chat.html'
+    context_object_name = 'rooms'
+    ordering = ['name']
 
 
 @login_required

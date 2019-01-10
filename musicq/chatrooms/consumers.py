@@ -39,10 +39,15 @@ class ChatConsumer(WebsocketConsumer):
                 duration=audio.length
             )
             #room = Room.objects.filter(name=self.room_name)
-            #Room.objects.filter(playlist__song=)
-            room1 = Room.objects.filter(name=self.room_name)
-            playlist = Playlist.objects.filter(id=room1[0]['playlist_id'])
-            playlist.song.add(song)
+            #
+            #
+            # Tu trzeba poprawić
+            try:
+                room1 = Room.objects.filter(name=self.room_name)
+                playlist = Playlist.objects.filter(id=room1[0]['playlist_id'])
+                playlist.song.add(song)
+            except:
+                print('Error')
             content = {
                 'command': 'new_message',
                 'message': {

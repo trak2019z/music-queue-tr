@@ -1,12 +1,14 @@
 {% extends "core/base.html" %}
 {% block content %}
-    <ul class="rooms">
-        {% for room in rooms %}
-            <li class="room-link" data-room-id="{{ room.id }}" >{{ room }}</li>
-        {% empty %}
-            <p class="empty">No chat rooms defined.</p>
-        {% endfor %}
-    </ul>
-    <div id="chats">
-    </div>
+    {% for room in rooms %}
+        <article class="media content-section">
+          {% comment %}<img class="rounded-circle article-img" src="{{ room.created_by.profile.image.url }}">
+          {% endcomment %}
+          <div class="media-body">
+            <h2><a class="article-title" href="{% url 'room' room.name %}">{{ room.name }}</a></h2>
+            <p class="article-content">{{ room.description }}</p>
+          </div>
+        </article>
+    {% endfor %}
+    <a class="btn btn-primary" href="{% url 'room_create' %}" role="button">Create Room</a>
 {% endblock content %}
