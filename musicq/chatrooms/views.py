@@ -6,7 +6,6 @@ from django.views.generic import View, ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 import json
 from .models import Room
-from player.models import Playlist
 from .forms import RoomRegisterForm
 
 
@@ -29,7 +28,7 @@ def room(request, room_name):
         return redirect('home')
 
 
-class CreateRoomView(View):
+class CreateRoomView(LoginRequiredMixin, View):
     form_class = RoomRegisterForm
     template_name = 'chatrooms/create_room.html'
 
@@ -46,8 +45,7 @@ class CreateRoomView(View):
             if Room.objects.filter(name=room_name).exists():
                 messages.error(request, 'Room already exists!')
                 return render(request, self.template_name, {'form': form})
-            playlist = Playlist.objects.create()
-            room = Room.objects.create(name=room_name, description=description, playlist=playlist, created_by=user)
+            room = Room.objects.create(name=room_name, description=description, created_by=user)
             if room:
                 messages.success(request, 'Successfully created room')
                 return redirect('home')

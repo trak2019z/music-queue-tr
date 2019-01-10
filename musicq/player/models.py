@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from chatrooms.models import Room
 import pafy
 import youtube_dl
 
@@ -18,7 +19,8 @@ class Song(models.Model):
 
 
 class Playlist(models.Model):
-    song = models.ManyToManyField(Song, blank=True)
+    song = models.ForeignKey(Song, default=None, on_delete=models.CASCADE)
+    room = models.ForeignKey(Room, default=None, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     '''def save(self, *args, **kwargs):

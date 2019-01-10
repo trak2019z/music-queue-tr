@@ -56,9 +56,14 @@
             var message = data2.message;
             document.querySelector('#chat-log').value += (displayTime() + " " + author + ": " + message + '\n');
             {% endcomment %}
+        } else if (data['command'] === 'messages') {
+            for (let i=0; i<data['messages'].length; i++) {
+                createMessage(data['messages'][i]);
+            }
         }
     };
     chatSocket.onopen = function(e) {
+        fetchMessages()
         console.info('Chat socket succesfully opened');
     };
 
@@ -71,7 +76,7 @@
             document.querySelector('#chat-message-submit').click();
         }
     };
-
+    {% comment %}
     document.querySelector('#chat-message-submit').onclick = function(e) {
         var messageInputDom = document.querySelector('#chat-message-input');
         var message = messageInputDom.value;
@@ -97,6 +102,33 @@
         }
         messageInputDom.value = '';
     };
+    {% endcomment %}
+        document.querySelector('#chat-message-submit').onclick = function(e) {
+        var messageInputDom = document.querySelector('#chat-message-input');
+        var message = messageInputDom.value;
+        var split = message.indexOf(" ");
+        var command;
+        command = message.substr(0, split);
+        message1 = message.substr(split);
+        if (command === '!play') {
+            youtube_id = youtube_parser(message1);
+            chatSocket.send(JSON.stringify({
+                'command': 'add_playlist_song',
+                'message': youtube_id,
+                'from': username
+            }));
+            } else {
+            chatSocket.send(JSON.stringify({
+            'command': 'new_message',
+            'message': message,
+            'from': username
+            }));
+        }
+        messageInputDom.value = '';
+    };
+    function fetchMessages() {
+        chatSocket.send(JSON.stringify({'command': 'fetch_messages'}));
+    }
     function createMessage(data) {
         var author = data['author'];
         var msgListTag = document.createElement('li');

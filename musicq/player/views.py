@@ -23,3 +23,5 @@ class PlaylistView(LoginRequiredMixin, CreateView):
     #def get_context_data(self, **kwargs):
     #    kwargs['object_list'] = Playlist.objects.order_by('timestamp')
     #    return super(PlaylistView, self).get_context_data(**kwargs)
+
+

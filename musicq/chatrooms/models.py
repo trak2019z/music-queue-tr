@@ -1,7 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils import timezone
-from player.models import Playlist
 
 User = get_user_model()
 
@@ -9,7 +8,6 @@ User = get_user_model()
 class Room(models.Model):
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255, null=True)
-    playlist = models.ForeignKey(Playlist, on_delete=models.CASCADE, null=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_date = models.DateTimeField(default=timezone.now)
 
@@ -25,4 +23,7 @@ class ChatMessage(models.Model):
 
     def __str__(self):
         return self.author.username
+
+    def last_10_messages(room_name):
+        return ChatMessage.objects.filter(room__name = room_name).order_by('-created')[:10]
 
