@@ -2,8 +2,8 @@
 #frame {
   position: fixed;
   bottom: 0;
-  right:1px;
-  left:1345px;
+  right: 0;
+  /*left: calc(100% - 410px);*/
   width: 30%;
   min-width: 360px;
   height: 90vh;
@@ -51,7 +51,7 @@
   display: inline-block;
   clear: both;
   float: left;
-  margin: 15px 15px 5px 15px;
+  margin: 1px 10px 1px 3px;
   #width: calc(100% - 25px);
   font-size: 0.9em;
 }

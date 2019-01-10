@@ -25,5 +25,5 @@ class ChatMessage(models.Model):
         return self.author.username
 
     def last_10_messages(room_name):
-        return ChatMessage.objects.filter(room__name = room_name).order_by('-created')[:10]
+        return reversed(ChatMessage.objects.order_by('-created').filter(room__name=room_name)[:10])
 

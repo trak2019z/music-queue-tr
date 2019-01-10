@@ -35,7 +35,7 @@ class ChatConsumer(WebsocketConsumer):
 
     def add_playlist_song(self, data):
         author = data['from']
-        #room1 = Room.objects.filter(name=self.room_name)[0]
+        room1 = Room.objects.filter(name=self.room_name)[0]
         url = data['message']
         if not Song.objects.filter(url=url).exists():
             audio = pafy.new(url)
@@ -46,14 +46,10 @@ class ChatConsumer(WebsocketConsumer):
                 best_url=best.url,
                 duration=audio.length
             )
-            content = self.dodaj(song, author)
-            #room = Room.objects.filter(name=self.room_name)
-            #
-            #
-            # Tu trzeba poprawić
+            content = self.dodaj(song, author, room1)
         else:
             song = Song.objects.filter(url=url)[0]
-            content = self.dodaj(song, author)
+            content = self.dodaj(song, author, room1)
 
         return self.send_chat_message(content)
 
@@ -104,20 +100,27 @@ class ChatConsumer(WebsocketConsumer):
                 'message': message
             }
         )
-    def dodaj(self, song, author):
-        try:
-            room1 = Room.objects.filter(name=self.room_name)
-            playlist = Playlist.objects.filter(id=room1[0]['playlist_id'])
-            playlist.song.add(song)
-        except:
-            print('Error')
-        content = {
-            'command': 'new_message',
-            'message': {
-                'author': author,
-                'message': "Dodano do playlisty %s" % song.title
+    def dodaj(self, song, author, room):
+        if not Playlist.objects.filter(room=room, song=song).exists():
+            Playlist.objects.create(
+                room=room,
+                song=song
+            )
+            content = {
+                'command': 'new_message',
+                'message': {
+                    'author': author,
+                    'message': "Added to playlist %s" % song.title
+                }
             }
-        }
+        else:
+            content = {
+                'command': 'new_message',
+                'message': {
+                    'author': author,
+                    'message': "%s already in playlist!" % song.title
+                }
+            }
         return content
 
     def send_message(self, message):
