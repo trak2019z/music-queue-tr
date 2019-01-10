@@ -1,0 +1,14 @@
+{% extends "core/base.html" %}
+{% block content %}
+    {% if playlist %}
+        {% for i in playlist %}
+            <article class="media content-section">
+            <div class="media-body">
+                <p class="article-content">{{ i.song.title }}</p>
+            </div>
+            </article>
+        {% endfor %}
+    {% else %}
+        <p class="article-content">There is no songs yet.</p>
+    {% endif %}
+{% endblock content %}

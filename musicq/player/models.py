@@ -23,6 +23,12 @@ class Playlist(models.Model):
     room = models.ForeignKey(Room, default=None, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
 
+    def playlist(room_name):
+        return Playlist.objects.filter(room=room_name).order_by('-timestamp')
+
+    #def __str__(self):
+    #    return self.song.title
+
     '''def save(self, *args, **kwargs):
         url = self.song.url
         audio = pafy.new(url)
