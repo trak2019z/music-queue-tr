@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils.safestring import mark_safe
 from django.contrib import messages
-from django.views.generic import View, ListView
+from django.views.generic import View, ListView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from player.models import Playlist
 import json
@@ -16,6 +16,11 @@ class RoomListView(ListView):
     context_object_name = 'rooms'
     ordering = ['name']
 
+
+class RoomDeleteView(LoginRequiredMixin, DeleteView):
+    model = Room
+    template_name = 'chartooms/delete_room.html'
+    success_url = 'room_list'
 
 @login_required
 def room(request, room_name):

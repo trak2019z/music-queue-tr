@@ -18,14 +18,6 @@
     <div class="content">
       <div class="messages">
           <ul id="chat-log">
-          {% comment %} <li class="sent">
-            <img src="http://emilcarlsson.se/assets/mikeross.png" alt="" />
-            <p>How the hell am I supposed to get a jury to believe you when I am not even sure that I do?!</p>
-          </li>
-          <li class="replies">
-            <img src="http://emilcarlsson.se/assets/harveyspecter.png" alt="" />
-            <p>When you're backed against the wall, break the god damn thing down.</p>
-          </li> {% endcomment %}
         </ul>
       </div>
       <div class="message-input">
@@ -49,6 +41,7 @@
 
     chatSocket.onmessage = function(e) {
         var data = JSON.parse(e.data);
+
         if (data['command'] === 'new_message'){
             createMessage(data['message']);
             {% comment %}data2 = data['message'];
@@ -57,13 +50,14 @@
             document.querySelector('#chat-log').value += (displayTime() + " " + author + ": " + message + '\n');
             {% endcomment %}
         } else if (data['command'] === 'messages') {
-            for (let i=0; i<data['messages'].length; i++) {
+            for (let i = 0; i < data['messages'].length; i++) {
                 createMessage(data['messages'][i]);
             }
         }
+
     };
     chatSocket.onopen = function(e) {
-        fetchMessages()
+        fetchMessages();
         console.info('Chat socket succesfully opened');
     };
 
@@ -103,28 +97,30 @@
         messageInputDom.value = '';
     };
     {% endcomment %}
-        document.querySelector('#chat-message-submit').onclick = function(e) {
+    document.querySelector('#chat-message-submit').onclick = function(e) {
         var messageInputDom = document.querySelector('#chat-message-input');
         var message = messageInputDom.value;
-        var split = message.indexOf(" ");
-        var command;
-        command = message.substr(0, split);
-        message1 = message.substr(split);
-        if (command === '!play') {
-            youtube_id = youtube_parser(message1);
-            chatSocket.send(JSON.stringify({
-                'command': 'add_playlist_song',
-                'message': youtube_id,
-                'from': username
-            }));
+        if (message !== "") {
+            var split = message.indexOf(" ");
+            var command;
+            command = message.substr(0, split);
+            message1 = message.substr(split);
+            if (command === '!play') {
+                youtube_id = youtube_parser(message1);
+                chatSocket.send(JSON.stringify({
+                    'command': 'add_playlist_song',
+                    'message': youtube_id,
+                    'from': username
+                }));
             } else {
-            chatSocket.send(JSON.stringify({
-            'command': 'new_message',
-            'message': message,
-            'from': username
-            }));
+                chatSocket.send(JSON.stringify({
+                    'command': 'new_message',
+                    'message': message,
+                    'from': username
+                }));
+            }
+            messageInputDom.value = '';
         }
-        messageInputDom.value = '';
     };
     function fetchMessages() {
         chatSocket.send(JSON.stringify({'command': 'fetch_messages'}));
