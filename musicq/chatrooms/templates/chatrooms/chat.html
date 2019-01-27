@@ -9,6 +9,9 @@
             <p class="article-content">{{ room.description }}</p>
             <a class="btn btn-primary" href="{% url 'room' room.name %}" role="button">Join</a>
             <a class="btn btn-primary" href="{% url 'song_list' room.name %}" role="button">Song List</a>
+            {% if room.created_by == user or user.is_superuser %}
+                <a class="btn btn-danger" href="{% url 'room_delete' room.pk %}" role="button">Delete</a>
+            {% endif %}
           </div>
         </article>
     {% endfor %}

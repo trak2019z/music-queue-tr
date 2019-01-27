@@ -4,6 +4,7 @@ from channels.generic.websocket import WebsocketConsumer
 from .models import Room, ChatMessage
 from player.models import Song, Playlist
 import json
+import datetime
 import pafy
 
 User = get_user_model()
@@ -16,6 +17,14 @@ class ChatConsumer(WebsocketConsumer):
         content = {
             'command': 'messages',
             'messages': self.messages_to_json(messages)
+        }
+        self.send_message(content)
+
+    def fetch_playlist(self, data):
+        playlist = Playlist.objects.filter(room__name=self.room_name)
+        content = {
+            'command' : 'playlist',
+            'songs': self.playlist_to_json(playlist)
         }
         self.send_message(content)
 
@@ -56,6 +65,7 @@ class ChatConsumer(WebsocketConsumer):
 
     commands = {
         'fetch_messages': fetch_messages,
+        'fetch_playlist': fetch_playlist,
         'add_playlist_song': add_playlist_song,
         'new_message': new_message,
     }
@@ -83,7 +93,8 @@ class ChatConsumer(WebsocketConsumer):
     def message_to_json(self, message):
         return {
             'author': message.author.username,
-            'message': message.message
+            'message': message.message,
+            'date_time': message.created.strftime('%y.%m.%d %H:%M')
         }
 
     def messages_to_json(self, messages):
@@ -91,6 +102,18 @@ class ChatConsumer(WebsocketConsumer):
         for message in messages:
             result.append(self.message_to_json(message))
         return result
+
+    def playlist_to_json(self, playlist):
+        result = []
+        for x in playlist:
+            result.append(self.song_to_playlist(x))
+        return result
+
+    def song_to_playlist(self, x):
+        return {
+            'song_name': x.song.title,
+            'videoid': x.song.url
+        }
 
     def send_chat_message(self, message):
         async_to_sync(self.channel_layer.group_send)(
@@ -100,6 +123,7 @@ class ChatConsumer(WebsocketConsumer):
                 'message': message
             }
         )
+
     def dodaj(self, song, author, room):
         if not Playlist.objects.filter(room=room, song=song).exists():
             Playlist.objects.create(
@@ -110,7 +134,8 @@ class ChatConsumer(WebsocketConsumer):
                 'command': 'new_message',
                 'message': {
                     'author': author,
-                    'message': "Added to playlist %s" % song.title
+                    'message': "Added to playlist %s" % song.title,
+                    'date_time': datetime.datetime.now().strftime('%y.%m.%d %H:%M')
                 }
             }
         else:
@@ -118,7 +143,8 @@ class ChatConsumer(WebsocketConsumer):
                 'command': 'new_message',
                 'message': {
                     'author': author,
-                    'message': "%s already in playlist!" % song.title
+                    'message': "%s already in playlist!" % song.title,
+                    'date_time': datetime.datetime.now().strftime('%y.%m.%d %H:%M')
                 }
             }
         return content
@@ -130,6 +156,6 @@ class ChatConsumer(WebsocketConsumer):
         message = event['message']
         self.send(text_data=json.dumps(message))
 
-    def song(self, event):
-        message = event['message']
-        self.send(text_data=json.dumps(message))
+    #def song(self, event):
+    #    message = event['message']
+    #    self.send(text_data=json.dumps(message))

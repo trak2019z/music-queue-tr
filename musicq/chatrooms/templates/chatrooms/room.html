@@ -30,6 +30,11 @@
       </div>
     </div>
   </div>
+  <div id="frame2">
+    <div id="player">
+
+    </div>
+  </div>
 </body>
 <script src="{% static 'reconnecting-websocket.js' %}"></script>
 <script>
@@ -39,25 +44,34 @@
         'ws://' + window.location.host +
         '/ws/chat/' + roomName + '/');
 
+    //playlist array
+    var playlist = [];
+    //youtube player
+    var player;
+    var tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
     chatSocket.onmessage = function(e) {
         var data = JSON.parse(e.data);
-
         if (data['command'] === 'new_message'){
             createMessage(data['message']);
-            {% comment %}data2 = data['message'];
-            var author = data2['author'];
-            var message = data2.message;
-            document.querySelector('#chat-log').value += (displayTime() + " " + author + ": " + message + '\n');
-            {% endcomment %}
         } else if (data['command'] === 'messages') {
             for (let i = 0; i < data['messages'].length; i++) {
                 createMessage(data['messages'][i]);
             }
+        } else if (data['command'] === 'playlist') {
+            for(let i = 0; i < data['songs'].length; i++) {
+                playlist.push(data['songs'][i]);
+            }
         }
+
 
     };
     chatSocket.onopen = function(e) {
         fetchMessages();
+        fetchPlaylist();
         console.info('Chat socket succesfully opened');
     };
 
@@ -107,6 +121,8 @@
             message1 = message.substr(split);
             if (command === '!play') {
                 youtube_id = youtube_parser(message1);
+
+                playlist.pop({'song_name': 'brak', 'videoid': youtube_id});
                 chatSocket.send(JSON.stringify({
                     'command': 'add_playlist_song',
                     'message': youtube_id,
@@ -125,12 +141,16 @@
     function fetchMessages() {
         chatSocket.send(JSON.stringify({'command': 'fetch_messages'}));
     }
+
+    function fetchPlaylist() {
+        chatSocket.send(JSON.stringify({'command': 'fetch_playlist'}));
+    }
     function createMessage(data) {
         var author = data['author'];
+        var date_time = data['date_time'];
         var msgListTag = document.createElement('li');
         var pTag = document.createElement('p');
-        pTag.textContent = displayTime() + " " + author + ': ' + data.message;
-
+        pTag.textContent = date_time + " " + author + ': ' + data.message;
 
         if (author === username) {
             msgListTag.className = 'sent';
@@ -140,27 +160,72 @@
         msgListTag.appendChild(pTag);
         document.querySelector('#chat-log').appendChild(msgListTag);
     }
-    function displayTime() {
-        var str = "";
 
-        var currentTime = new Date();
-        var hours = currentTime.getHours();
-        var minutes = currentTime.getMinutes();
-        var seconds = currentTime.getSeconds();
-
-        if (minutes < 10) {
-            minutes = "0" + minutes
-        }
-        if (seconds < 10) {
-            seconds = "0" + seconds
-        }
-        str += hours + ":" + minutes + ":" + seconds + "|";
-        return str
-    }
     function youtube_parser(url) {
         var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#\&\?]*).*/;
         var match = url.match(regExp);
         return (match&&match[7].length==11)? match[7] : false;
     }
+
+    function onYouTubeIframeAPIReady() {
+        player = new YT.Player('player', {
+            height: '360',
+            width: '640',
+            videoId: playlist.shift().videoid,
+            playerVars: {
+                'rel': 0,
+                'controls': 1,
+                'fs': 0
+            },
+            events: {
+                'onReady': onPlayerReady,
+                'onStateChange': onPlayerStateChange,
+                'onError': onError
+            }
+        });
+    }
+
+    function onPlayerReady(event) {
+        event.target.playVideo();
+    }
+
+    function onPlayerStateChange(event) {
+        if (event.data == YT.PlayerState.PLAYING) {
+            console.log("Youtube Playing");
+        } else if (event.data == YT.PlayerState.ENDED) {
+            console.log(">>>Youtube Ended");
+            loadNextVideo();
+            //player.loadVideoById('b4NORbnAWEY', 0, "default")
+        } else if (event.data == YT.PlayerState.PAUSED) {
+            console.log("Youtube Paused");
+        } else if (event.data == YT.PlayerState.BUFFERING) {
+            console.log("Youtube buffering");
+        } else if (event.data == YT.PlayerState.CUED) {
+            console.log("Youtube Cude");
+        }
+    }
+
+    function onError(event) {
+        try {
+            console.log("wystąpił problem");
+            player.loadVideoById(playlist.shift().videoid, 0, "default");
+        }
+        catch(err) {
+            fetchPlaylist()
+        }
+
+    }
+
+    function loadNextVideo() {
+        //if (!Array.isArray(playlist) || !playlist.length) {
+        if (playlist.length < 1) {
+            fetchPlaylist();
+        } else {
+            player.loadVideoById(playlist.shift().videoid, 0, "default");
+            console.log(playlist);
+        }
+    }
+
+
 </script>
 {% endblock content %}

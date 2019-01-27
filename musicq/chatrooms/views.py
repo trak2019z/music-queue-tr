@@ -19,8 +19,8 @@ class RoomListView(ListView):
 
 class RoomDeleteView(LoginRequiredMixin, DeleteView):
     model = Room
-    template_name = 'chartooms/delete_room.html'
-    success_url = 'room_list'
+    template_name = 'chatrooms/delete_room.html'
+    success_url = '/chat/room_list'
 
 @login_required
 def room(request, room_name):
