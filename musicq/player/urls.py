@@ -7,4 +7,6 @@ urlpatterns = [
     #path('player/', name='player'),
     re_path(r'^(?P<room_name>[^/]+)/$',
             views.SongListView.as_view(template_name='player/song_list.html'), name='song_list'),
+    re_path(r'^(?P<room_name>[^/]+)/delete/(?P<pk>\d+)$',
+            views.SongDeleteView.as_view(template_name='player/song_delete.html'), name='song_delete'),
     ]

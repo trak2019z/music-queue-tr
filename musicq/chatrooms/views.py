@@ -4,6 +4,7 @@ from django.utils.safestring import mark_safe
 from django.contrib import messages
 from django.views.generic import View, ListView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.urls import reverse_lazy
 from player.models import Playlist
 import json
 from .models import Room
@@ -20,7 +21,7 @@ class RoomListView(ListView):
 class RoomDeleteView(LoginRequiredMixin, DeleteView):
     model = Room
     template_name = 'chatrooms/delete_room.html'
-    success_url = '/chat/room_list'
+    success_url = reverse_lazy('room_list')
 
 @login_required
 def room(request, room_name):

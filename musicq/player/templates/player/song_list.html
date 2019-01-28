@@ -5,6 +5,9 @@
             <article class="media content-section">
             <div class="media-body">
                 <p class="article-content">{{ i.song.title }}</p>
+                {% if i.room.created_by == user or user.is_superuser %}
+                    <a class="btn btn-danger" href="{% url 'song_delete' i.room.name i.pk %}" role="button">X</a>
+                {% endif %}
             </div>
             </article>
         {% endfor %}

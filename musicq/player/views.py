@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect
-from django.views.generic import CreateView, ListView
+from django.views.generic import CreateView, ListView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
+from django.urls import reverse_lazy
 from chatrooms.models import Room
 from .forms import SongCreateForm
 from .models import Playlist
@@ -45,3 +46,12 @@ class SongListView(ListView):
 
     def get_queryset(self):
         return Playlist.objects.filter(room__name=self.kwargs['room_name'])
+
+
+class SongDeleteView(LoginRequiredMixin, DeleteView):
+    model = Playlist
+    template_name = 'player/song_delete.html'
+
+    def get_success_url(self):
+        room_name = self.kwargs['room_name']
+        return reverse_lazy('song_list', kwargs={'room_name': room_name})
