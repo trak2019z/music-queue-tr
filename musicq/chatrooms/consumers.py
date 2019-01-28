@@ -55,10 +55,10 @@ class ChatConsumer(WebsocketConsumer):
                 best_url=best.url,
                 duration=audio.length
             )
-            content = self.dodaj(song, author, room1)
+            content = self.add_song(song, author, room1)
         else:
             song = Song.objects.filter(url=url)[0]
-            content = self.dodaj(song, author, room1)
+            content = self.add_song(song, author, room1)
 
         return self.send_chat_message(content)
 
@@ -124,7 +124,7 @@ class ChatConsumer(WebsocketConsumer):
             }
         )
 
-    def dodaj(self, song, author, room):
+    def add_song(self, song, author, room):
         if not Playlist.objects.filter(room=room, song=song).exists():
             Playlist.objects.create(
                 room=room,
@@ -155,7 +155,3 @@ class ChatConsumer(WebsocketConsumer):
     def chat_message(self, event):
         message = event['message']
         self.send(text_data=json.dumps(message))
-
-    #def song(self, event):
-    #    message = event['message']
-    #    self.send(text_data=json.dumps(message))

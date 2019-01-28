@@ -84,33 +84,7 @@
             document.querySelector('#chat-message-submit').click();
         }
     };
-    {% comment %}
-    document.querySelector('#chat-message-submit').onclick = function(e) {
-        var messageInputDom = document.querySelector('#chat-message-input');
-        var message = messageInputDom.value;
-        var split = message.indexOf(" ");
-        var command;
-        if (split === -1){
-            chatSocket.send(JSON.stringify({
-            'command': 'new_message',
-            'message': message,
-            'from': username
-            }));
-        } else{
-            command = message.substr(0, split);
-            message = message.substr(split);
-            if (command === '!play') {
-                youtube_id = youtube_parser(message);
-                chatSocket.send(JSON.stringify({
-                    'command': 'add_playlist_song',
-                    'message': youtube_id,
-                    'from': username
-                }));
-            }
-        }
-        messageInputDom.value = '';
-    };
-    {% endcomment %}
+
     document.querySelector('#chat-message-submit').onclick = function(e) {
         var messageInputDom = document.querySelector('#chat-message-input');
         var message = messageInputDom.value;

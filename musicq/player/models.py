@@ -26,14 +26,3 @@ class Playlist(models.Model):
     def playlist(room_name):
         return Playlist.objects.filter(room=room_name).order_by('-timestamp')
 
-    #def __str__(self):
-    #    return self.song.title
-
-    '''def save(self, *args, **kwargs):
-        url = self.song.url
-        audio = pafy.new(url)
-        best = audio.getbestaudio(preftype='m4a')
-        self.best_url = best.url
-        self.song_title = audio.title
-        self.song = best.download()
-        super(Playlist, self).save(*args, **kwargs)'''
