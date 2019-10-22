@@ -22,7 +22,7 @@ msgpack==0.5.6
 msgpack-python==0.5.6
 oauthlib==3.0.0
 pafy==0.5.4
-Pillow==5.3.0
+Pillow==6.2.0
 PyHamcrest==1.9.0
 pytz==2018.7
 redis==2.10.6
